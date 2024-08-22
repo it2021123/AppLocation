@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MapActivity"
+    android:background="@color/colorPrimary">
+
+    <!-- Χώρος που περιέχει το MapView -->
+    <FrameLayout
+        android:id="@+id/mapContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomButtonsLayout">
+
+        <!-- MapView -->
+        <org.osmdroid.views.MapView
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <!-- Κουμπιά στο κάτω μέρος της οθόνης -->
+    <LinearLayout
+        android:id="@+id/bottomButtonsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="@color/colorPrimary"
+        android:elevation="6dp"
+        android:divider="?android:attr/dividerVertical"
+        android:showDividers="middle">
+
+        <Button
+            android:id="@+id/startButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Start"
+            android:textColor="#6200EE"
+            android:layout_margin="8dp"
+            android:padding="12dp"
+            android:textStyle="bold"
+            android:backgroundTint="#3C3F4C" />
+
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel"
+            android:textColor="#B00020"
+            android:layout_margin="8dp"
+            android:padding="12dp"
+            android:textStyle="bold"
+            android:backgroundTint="#333645" />
+    </LinearLayout>
+</RelativeLayout>
+
+
+
+
+

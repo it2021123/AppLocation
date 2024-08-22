@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ResultsMapActivity"
+    android:background="@color/colorPrimary">
+
+    <!-- Χώρος που περιέχει το MapView -->
+    <FrameLayout
+        android:id="@+id/mapContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/buttonsLayout">
+
+        <org.osmdroid.views.MapView
+            android:id="@+id/map2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <!-- Κουμπιά στο κάτω μέρος της οθόνης -->
+    <LinearLayout
+        android:id="@+id/buttonsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="@color/colorPrimary"
+        android:elevation="6dp"
+        android:divider="?android:attr/dividerHorizontal"
+        android:showDividers="middle">
+
+        <Button
+            android:id="@+id/returnButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#3C4A51"
+            android:text="Return to Main Screen"
+            android:textColor="#020B3E"
+            android:textStyle="bold"
+             />
+
+        <Button
+            android:id="@+id/pauseResumeButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="#3C4A51"
+            android:text="Pause/Resume Service"
+            android:textColor="#6E0407"
+            android:textStyle="bold"
+             />
+    </LinearLayout>
+</RelativeLayout>
+
