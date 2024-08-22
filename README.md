@@ -1,32 +1,43 @@
-Location Tracking App
-Overview
-The Location Tracking App is a GPS-based application designed for real-time location tracking and management. It integrates with a local SQLite database to store and manage location data, monitors GPS status, and updates location information periodically.
+# **Location Tracking App**
 
-Features
-Real-Time Location Tracking: Continuously monitors and updates the user's location.
-Database Integration: Stores location data and session information in a local SQLite database.
-GPS Status Monitoring: Checks and manages GPS status, activating or deactivating location services as needed.
-Periodic Location Updates: Requests and processes location updates at regular intervals.
-User Interface: Provides a map view to display the current location and marked regions.
-Installation
-Clone the Repository:
+## **Overview**
 
-git clone <repository_url>
-Open the Project: Import the project into Android Studio or your preferred IDE.
+Η **Location Tracking App** είναι μια εφαρμογή GPS για παρακολούθηση και διαχείριση τοποθεσιών σε πραγματικό χρόνο. Συνδυάζει μια τοπική βάση δεδομένων SQLite για αποθήκευση και διαχείριση δεδομένων τοποθεσίας, παρακολούθηση της κατάστασης GPS και περιοδική ενημέρωση της τοποθεσίας.
 
-Configure Dependencies: Ensure all required dependencies are included in your project’s build.gradle file.
+## **Features**
 
-Run the Application: Build and run the application on an Android device or emulator.
+- **Real-Time Location Tracking**: Παρακολούθηση και ενημέρωση της τοποθεσίας του χρήστη σε πραγματικό χρόνο.
+- **Database Integration**: Αποθήκευση δεδομένων τοποθεσίας και πληροφορίας συνεδρίας σε τοπική βάση δεδομένων SQLite.
+- **GPS Status Monitoring**: Έλεγχος και διαχείριση της κατάστασης του GPS, ενεργοποίηση ή απενεργοποίηση υπηρεσιών τοποθεσίας.
+- **Periodic Location Updates**: Αίτηση και επεξεργασία ενημερώσεων τοποθεσίας σε κανονικά διαστήματα.
+- **User Interface**: Παροχή προβολής χάρτη για εμφάνιση της τρέχουσας τοποθεσίας και σημειωμένων περιοχών.
 
-Usage
-Start Location Service: Begin tracking location updates by starting the location service.
-View Location on Map: The map view displays the current location and updates it based on GPS data.
-Manage Locations: Add, delete, or query location data through the app's interface.
-Permissions
-The app requires the following permissions:
+## **Installation**
 
-ACCESS_FINE_LOCATION: To access the device's GPS location.
-INTERNET: For downloading map tiles and accessing location services.
-Contact
-For questions or support, please contact giopou2003@gmail.com.
+1. **Clone the Repository**:
+    ```bash
+    git clone <repository_url>
+    ```
 
+2. **Open the Project**: Εισάγετε το έργο στο Android Studio ή στον προτιμώμενο IDE σας.
+
+3. **Configure Dependencies**: Βεβαιωθείτε ότι όλες οι απαραίτητες εξαρτήσεις περιλαμβάνονται στο αρχείο `build.gradle` του έργου σας.
+
+4. **Run the Application**: Κατασκευάστε και τρέξτε την εφαρμογή σε μια συσκευή Android ή εξομοιωτή.
+
+## **Usage**
+
+- **Start Location Service**: Ξεκινήστε την υπηρεσία τοποθεσίας για να αρχίσετε την παρακολούθηση ενημερώσεων τοποθεσίας.
+- **View Location on Map**: Η προβολή χάρτη εμφανίζει την τρέχουσα τοποθεσία και την ενημερώνει με βάση τα δεδομένα GPS.
+- **Manage Locations**: Προσθέστε, διαγράψτε ή αναζητήστε δεδομένα τοποθεσίας μέσω της διεπαφής της εφαρμογής.
+
+## **Permissions**
+
+Η εφαρμογή απαιτεί τις εξής άδειες:
+
+- **ACCESS_FINE_LOCATION**: Για πρόσβαση στην τοποθεσία GPS της συσκευής.
+- **INTERNET**: Για λήψη πλακών χάρτη και πρόσβαση στις υπηρεσίες τοποθεσίας.
+
+## **Contact**
+
+Για ερωτήσεις ή υποστήριξη, παρακαλώ επικοινωνήστε με [giopou2003@gmail.com](mailto:giopou2003@gmail.com).
