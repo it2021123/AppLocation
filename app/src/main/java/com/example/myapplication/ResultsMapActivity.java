@@ -53,7 +53,7 @@ public class ResultsMapActivity extends AppCompatActivity {
 
         // Αρχικοποίηση της βιβλιοθήκης osmdroid
         Configuration.getInstance().load(getApplicationContext(), getPreferences(MODE_PRIVATE));
-        int session = 0;  // Μεταβλητή για την παρακολούθηση της τρέχουσας συνεδρίας
+
         contentProvider = new MyContentProvider();
 
         // Εύρεση και αρχικοποίηση του MapView
@@ -92,7 +92,7 @@ public class ResultsMapActivity extends AppCompatActivity {
                     mph.addMarker(updatedLocation);
 
                     // Εμφάνιση των επισημειωμένων περιοχών από το Content Provider
-                    mph.showMarkedRegions(session);
+                    mph.showMarkedRegions(MyContentProvider.ses-1);
                 }
             });
         } else {

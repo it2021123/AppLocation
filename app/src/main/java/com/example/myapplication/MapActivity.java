@@ -161,10 +161,8 @@ public class MapActivity extends AppCompatActivity {
     private void deleteLocation(GeoPoint p) {
         if (p != null) {
             // Εύρεση και διαγραφή του πλησιέστερου κύκλου από τον χάρτη
-            GeoPoint po = hmap.removeNearestCircle(p);
-            if (po != null) {
-                providerse.deleteLocationByGeoPoint(po, MapActivity.this); // Διαγραφή της τοποθεσίας από τη βάση δεδομένων
-            } else {
+            GeoPoint po = hmap.removeNearestCircle(p,providerse);
+            if (po == null) {
                 Toast.makeText(MapActivity.this, "No nearby location found to delete", Toast.LENGTH_SHORT).show(); // Εμφάνιση μηνύματος αν δεν βρέθηκε τοποθεσία
             }
         } else {

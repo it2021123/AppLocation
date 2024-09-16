@@ -129,7 +129,8 @@ public class MyContentProvider extends ContentProvider {
         }
     }
 
-    // Μέθοδος για έλεγχο ύπαρξης του πίνακα
+   /*
+   // Μέθοδος για έλεγχο ύπαρξης του πίνακα
     private boolean tableExists(SQLiteDatabase db, String tableName) {
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?", new String[]{"table", tableName});
         if (cursor != null) {
@@ -143,5 +144,5 @@ public class MyContentProvider extends ContentProvider {
             }
         }
         return false; // Επιστροφή false αν ο πίνακας δεν υπάρχει
-    }
+    }*/
 }

@@ -39,10 +39,10 @@ public class LocationService extends Service {
                 try {
                     lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener); // Αίτηση ενημέρωσης τοποθεσίας
                     service_on = true;
-                    showToast("Αίτηση ενημέρωσης τοποθεσίας");
+                    //showToast("Location update request");
                 } catch (SecurityException e) {
                     e.printStackTrace();
-                    showToast("Σφάλμα κατά την αίτηση ενημέρωσης τοποθεσίας");
+                    showToast("Error requesting location update");
                 }
             }
             handler.postDelayed(this, LOCATION_UPDATE_INTERVAL); // Προγραμματισμός της επόμενης ενημέρωσης
@@ -62,14 +62,14 @@ public class LocationService extends Service {
         if (lm != null && hasLocationPermission()) {
             try {
                 lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener); // Αίτηση ενημέρωσης τοποθεσίας
-                showToast("Ενημέρωση τοποθεσίας ξεκίνησε");
+               // showToast("Update Location");
             } catch (SecurityException e) {
                 e.printStackTrace();
-                showToast("Αποτυχία ενημέρωσης τοποθεσίας");
+                showToast("Error:Location was not update");
             }
         } else {
             service_on = false;
-            showToast("Άδεια τοποθεσίας δεν έχει δοθεί");
+            showToast("Location permit has not been granted");
         }
     }
 
@@ -91,12 +91,12 @@ public class LocationService extends Service {
 
         @Override
         public void onProviderEnabled(@NonNull String provider) {
-            showToast("Ο πάροχος ενεργοποιήθηκε: " + provider);
+            showToast("The provider is enabled: " + provider);
         }
 
         @Override
         public void onProviderDisabled(@NonNull String provider) {
-            showToast("Ο πάροχος απενεργοποιήθηκε: " + provider);
+            showToast("The provider was disabled: " + provider);
         }
     };
 
@@ -123,7 +123,7 @@ public class LocationService extends Service {
         if (handler != null) {
             handler.removeCallbacks(locationUpdateRunnable); // Αφαίρεση των επαναλαμβανόμενων εργασιών
         }
-        showToast("Η υπηρεσία τοποθεσίας σταμάτησε");
+        showToast("Location service stoped");
         super.onDestroy(); // Κλήση της onDestroy της υπερκλάσης
     }
 

@@ -16,6 +16,8 @@ import androidx.core.content.ContextCompat;
 
 import org.osmdroid.util.GeoPoint;
 
+import java.util.Locale;
+
 public class ProviderService {
 
     private ContentResolver resolver;
@@ -40,7 +42,7 @@ public class ProviderService {
     }
 
     // Μέθοδος για διαγραφή τοποθεσίας με βάση τη γεωγραφική τοποθεσία (GeoPoint)
-    public void deleteLocationByGeoPoint(GeoPoint point, Context c) {
+    /*public void deleteLocationByGeoPoint(GeoPoint point, Context c) {
         if (point == null) {
             Toast.makeText(c, "Error: GeoPoint is null", Toast.LENGTH_SHORT).show();
             return;
@@ -49,20 +51,30 @@ public class ProviderService {
         double latitude = point.getLatitude();
         double longitude = point.getLongitude();
 
-        // Ορισμός της WHERE clause για τις συντεταγμένες
+        // Ορισμός του WHERE clause με μεγαλύτερη ακρίβεια στις συντεταγμένες
         String whereClause = MyContentProvider.LATITUDE + " = ? AND " + MyContentProvider.LONGITUDE + " = ?";
-        String[] whereArgs = {String.valueOf(latitude), String.valueOf(longitude)};
 
-        // Διαγραφή των τοποθεσιών με βάση τις συντεταγμένες
+        // Στρογγυλοποίηση των συντεταγμένων στο 6ο δεκαδικό για ακρίβεια
+        String[] whereArgs = {
+                String.format(Locale.US, "%.6f", latitude),
+                String.format(Locale.US, "%.6f", longitude)
+        };
+
+        // Εκτέλεση της διαγραφής χρησιμοποιώντας το ContentResolver
         Uri uri = MyContentProvider.CONTENT_URI;
         int deletedRows = resolver.delete(uri, whereClause, whereArgs);
 
+        // Έλεγχος αποτελέσματος διαγραφής και εμφάνιση ανάλογου μηνύματος
         if (deletedRows > 0) {
             Toast.makeText(c, "Location at " + latitude + ", " + longitude + " deleted", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(c, "No location found at " + latitude + ", " + longitude, Toast.LENGTH_SHORT).show();
         }
-    }
+    }*/
+
+
+
+
 
     // Μέθοδος για διαγραφή τοποθεσιών με βάση το session ID
     public void deleteLocationBySession(int session, Context c) {
@@ -109,7 +121,7 @@ public class ProviderService {
         if (cursor != null) {
             try {
                 while (cursor.moveToNext()) {
-                    if (isPointWithinRadius(cursor, currentLatitude, currentLongitude)) {
+                    if (isPointWithinRadius(cursor, currentLatitude, currentLongitude,100)) {
                         ret = true;
                     }
                 }
@@ -121,10 +133,10 @@ public class ProviderService {
     }
 
     // Μέθοδος για να ελέγξει αν μια τοποθεσία βρίσκεται εντός της καθορισμένης ακτίνας από ένα συγκεκριμένο σημείο
-    private boolean isPointWithinRadius(Cursor cursor, double currentLatitude, double currentLongitude) {
+    private boolean isPointWithinRadius(Cursor cursor, double currentLatitude, double currentLongitude ,int rad) {
         double pointLatitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MyContentProvider.LATITUDE));
         double pointLongitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MyContentProvider.LONGITUDE));
-        int radius = 100; // Ακτίνα σε μέτρα
+        int radius = rad; // Ακτίνα σε μέτρα
 
         double distance = calculateDistance(currentLatitude, currentLongitude, pointLatitude, pointLongitude);
 
