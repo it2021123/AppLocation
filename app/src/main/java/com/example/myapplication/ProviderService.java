@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat;
 
 import org.osmdroid.util.GeoPoint;
 
-import java.util.Locale;
 
 public class ProviderService {
 

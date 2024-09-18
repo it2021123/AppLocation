@@ -1,5 +1,8 @@
 package com.example.myapplication;
 
+import static com.example.myapplication.MyContentProvider.CONTENT_URI; // Στατική εισαγωγή του CONTENT_URI από τον πάροχο περιεχομένου
+import static com.example.myapplication.MyContentProvider.INSIDE; // Στατική εισαγωγή του INSIDE από τον πάροχο περιεχομένου
+
 import android.Manifest; // Εισαγωγή των απαιτούμενων αδειών
 import android.app.Service; // Εισαγωγή της κλάσης Service
 import android.content.ContentResolver; // Εισαγωγή της κλάσης ContentResolver
@@ -19,7 +22,6 @@ import android.widget.Toast; // Εισαγωγή της κλάσης Toast γι�
 import androidx.annotation.NonNull; // Εισαγωγή των annotation NonNull
 import androidx.annotation.Nullable; // Εισαγωγή των annotation Nullable
 import androidx.core.content.ContextCompat; // Εισαγωγή της κλάσης ContextCompat για έλεγχο αδειών
-
 public class LocationService extends Service {
     private ContentResolver resolver; // Δήλωση του ContentResolver για διαχείριση δεδομένων
     private LocationManager lm; // Δήλωση του LocationManager για διαχείριση τοποθεσίας

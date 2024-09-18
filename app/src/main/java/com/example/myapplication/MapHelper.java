@@ -109,7 +109,7 @@ public class MapHelper {
             if (circle.getPoints() != null && !circle.getPoints().isEmpty()) {
                 i=i+1;
                 GeoPoint circleCenter = (GeoPoint) circle.getPoints().get(0);  // Λήψη του κέντρου του κύκλου
-                double distance = calculateDistance(point.getLatitude(), point.getLongitude(), circleCenter.getLatitude(), circleCenter.getLongitude());
+                double distance = providerse.calculateDistance(point.getLatitude(), point.getLongitude(), circleCenter.getLatitude(), circleCenter.getLongitude());
 
                 // Αν η απόσταση είναι μικρότερη από την προηγούμενη ελάχιστη, ενημερώνουμε τον πλησιέστερο κύκλο
                 if (distance < minDistance) {
@@ -147,17 +147,7 @@ public class MapHelper {
 
 
 
-    // Υπολογισμός της απόστασης μεταξύ δύο σημείων χρησιμοποιώντας τη σφαιρική γεωμετρία
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        double earthRadius = 6371000; // ακτίνα της Γης σε μέτρα
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return earthRadius * c; // Επιστροφή της απόστασης σε μέτρα
-    }
+
 
     // Δημιουργία κύκλου (Polygon) με κέντρο, ακτίνα και χρώμα
     private Polygon createCircle(GeoPoint centerPoint, double radiusMeters, int numberOfPoints, int color) {
