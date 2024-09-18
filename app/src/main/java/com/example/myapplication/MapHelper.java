@@ -53,11 +53,15 @@ public class MapHelper {
     private List<Polygon> circles; // Λίστα με τους κύκλους που έχουν προστεθεί στο χάρτη
     private Marker lastMarker; // Δήλωση μεταβλητής για τον τελευταίο marker που προστέθηκε
 
+    private List<Long> idCircles;
+   // private long counter=1;
     // Κατασκευαστής της κλάσης MapHelper
     public MapHelper(MapView mapView, Context context) {
         this.mapView = mapView;
         this.context = context;
         this.circles = new ArrayList<>(); // Αρχικοποίηση της λίστας circles
+        this.idCircles = new ArrayList<>();
+
     }
 
     // Προσθήκη marker στο χάρτη
@@ -83,6 +87,8 @@ public class MapHelper {
         mapView.getOverlayManager().add(circle); // Προσθήκη του κύκλου στο overlay του χάρτη
         circles.add(circle); // Προσθήκη του κύκλου στη λίστα
         mapView.invalidate(); // Ενημέρωση της προβολής του χάρτη
+        idCircles.add(MyContentProvider.counter);
+        MyContentProvider.counter++;
     }
 
     // Αφαίρεση του πλησιέστερου κύκλου από τη δεδομένη θέση
@@ -96,7 +102,8 @@ public class MapHelper {
         GeoPoint nearestCirclePoint = null;  // Μεταβλητή για το πλησιέστερο σημείο κύκλου
         Polygon nearestCircle = null;  // Μεταβλητή για τον πλησιέστερο κύκλο
         double minDistance = 500;  // Αρχικοποίηση της ελάχιστης απόστασης
-         long i =0;
+         int i =0;
+         int j=0;
         // Βρίσκουμε τον πλησιέστερο κύκλο
         for (Polygon circle : circles) {
             if (circle.getPoints() != null && !circle.getPoints().isEmpty()) {
@@ -106,6 +113,7 @@ public class MapHelper {
 
                 // Αν η απόσταση είναι μικρότερη από την προηγούμενη ελάχιστη, ενημερώνουμε τον πλησιέστερο κύκλο
                 if (distance < minDistance) {
+                    j=i;
                     minDistance = distance;
                     nearestCirclePoint = circleCenter;
                     nearestCircle = circle;
@@ -117,12 +125,14 @@ public class MapHelper {
         if (nearestCircle != null ) {
             mapView.getOverlayManager().remove(nearestCircle);
             circles.remove(nearestCircle);
+            long idc=idCircles.get(j);
+            idCircles.remove(j);
             mapView.invalidate();  // Ενημέρωση της προβολής του χάρτη
             Log.d("MapHelper", "Removed nearest circle at distance: " + minDistance + " meters");
 
             // Αν υπάρχει υπηρεσία ProviderService, διαγράφουμε τη θέση από τη βάση δεδομένων
             if (providerse != null && nearestCirclePoint != null) {
-                providerse.deleteLocation(i, context);
+                providerse.deleteLocation(idc, context);
             } else {
                 Log.e("MapHelper", "ProviderService or nearestCirclePoint is null");
             }

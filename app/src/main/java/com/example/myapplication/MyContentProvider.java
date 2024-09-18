@@ -39,6 +39,7 @@ public class MyContentProvider extends ContentProvider {
     private DatabaseHelper dbHelper; // Βοηθητική κλάση για τη διαχείριση της βάσης δεδομένων
 
     public static int ses; // Μεταβλητή για την παρακολούθηση της τρέχουσας συνεδρίας
+    public static long counter;
 
 
     @Override
@@ -56,7 +57,7 @@ public class MyContentProvider extends ContentProvider {
         database.execSQL("DROP TABLE locations;"); // Διαγραφή του πίνακα αν υπάρχει (για σκοπούς δοκιμών)
         database.execSQL(CREATE_TABLE_QUERY); // Δημιουργία του πίνακα
         ses = 0; // Αρχικοποίηση της μεταβλητής συνεδρίας
-
+        counter=0;
         Log.d("DatabaseHelper", "Table created successfully."); // Καταγραφή της επιτυχίας δημιουργίας πίνακα
 
         return true; // Επιτυχής δημιουργία του ContentProvider

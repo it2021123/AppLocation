@@ -1,6 +1,4 @@
 package com.example.myapplication;
-import static com.example.myapplication.MyContentProvider.CONTENT_URI; // Στατική εισαγωγή του CONTENT_URI από τον πάροχο περιεχομένου
-import static com.example.myapplication.MyContentProvider.INSIDE; // Στατική εισαγωγή του INSIDE από τον πάροχο περιεχομένου
 
 import android.Manifest; // Εισαγωγή των απαιτούμενων αδειών
 import android.app.Service; // Εισαγωγή της κλάσης Service
