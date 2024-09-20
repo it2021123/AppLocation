@@ -79,7 +79,9 @@ public class LocationService extends Service {
             if (service_on) {
                 double currentLatitude = location.getLatitude(); // Απόκτηση γεωγραφικού πλάτους
                 double currentLongitude = location.getLongitude(); // Απόκτηση γεωγραφικού μήκους
-                provService.isLocationWithinRadius(currentLatitude, currentLongitude); // Έλεγχος αν η τοποθεσία είναι εντός της ακτίνας
+                if(MyContentProvider.ses>0) {
+                    provService.isLocationWithinRadius(currentLatitude, currentLongitude, MyContentProvider.ses-1);
+                }// Έλεγχος αν η τοποθεσία είναι εντός της ακτίνας
                // showToast("Location update: " + currentLatitude + ", " + currentLongitude);
             }
         }

@@ -34,9 +34,9 @@ public class ProviderService {
     }
 
     // Μέθοδος για να ενημερώσει την κατάσταση μιας τοποθεσίας (π.χ., αν βρίσκεται εντός της ακτίνας)
-    private void updateLocationStatus(Cursor cursor, String selection, String[] selectionArgs) {
+    private void updateLocationStatus(Cursor cursor, String selection, String[] selectionArgs, int number) {
         ContentValues updateValues = new ContentValues();
-        updateValues.put(MyContentProvider.INSIDE, 1);
+        updateValues.put(MyContentProvider.INSIDE, number);
         resolver.update(MyContentProvider.CONTENT_URI, updateValues, selection, selectionArgs);
     }
 
@@ -72,9 +72,6 @@ public class ProviderService {
     }*/
 
 
-
-
-
     // Μέθοδος για διαγραφή τοποθεσιών με βάση το session ID
     public void deleteLocationBySession(int session, Context c) {
         // Ορισμός του WHERE clause για το session
@@ -103,8 +100,7 @@ public class ProviderService {
         }
     }
 
-    // Μέθοδος για να ελέγξει αν μια τοποθεσία βρίσκεται εντός της καθορισμένης ακτίνας
-    public boolean isLocationWithinRadius(double currentLatitude, double currentLongitude) {
+    public boolean isLocationWithinRadius(double currentLatitude, double currentLongitude, int sess) {
         boolean ret = false;
         String[] projection = {
                 MyContentProvider.ID,
@@ -113,15 +109,35 @@ public class ProviderService {
                 MyContentProvider.RADIUS,
                 MyContentProvider.INSIDE
         };
-        String selection = MyContentProvider.INSIDE + " = ?";
-        String[] selectionArgs = {"0"};
+
+        String selection = MyContentProvider.INSIDE + " IN (?, ?) AND " + MyContentProvider.SESSION + " = ?";
+        String[] selectionArgs = {"0", "2", String.valueOf(sess)};
+
         Cursor cursor = queryLocationsOutsideRadius(projection, selection, selectionArgs);
 
         if (cursor != null) {
             try {
                 while (cursor.moveToNext()) {
-                    if (isPointWithinRadius(cursor, currentLatitude, currentLongitude,100)) {
+                    double pointLatitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MyContentProvider.LATITUDE));
+                    double pointLongitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MyContentProvider.LONGITUDE));
+
+                    double distance = calculateDistance(currentLatitude, currentLongitude, pointLatitude, pointLongitude);
+                    String selection1 = MyContentProvider.ID + " = ?";
+                    String[] selectionArgs1 = {String.valueOf(cursor.getLong(cursor.getColumnIndexOrThrow(MyContentProvider.ID)))};
+
+                    // Έλεγχος για το αν το σημείο είναι εντός των 100 μέτρων
+                    if (distance <= 100) {
+                        updateLocationStatus(cursor, selection1, selectionArgs1, 1);
+                        notifyLocationWithinRadius(currentLatitude, currentLongitude);
                         ret = true;
+                    }
+                    // Έλεγχος για απόσταση μεταξύ 100 και 600 μέτρων
+                    else if (distance > 100 && distance < 600) {
+                        updateLocationStatus(cursor, selection1, selectionArgs1, 2);
+                    }
+                    // Αν το INSIDE είναι 2 και η απόσταση είναι μεγαλύτερη των 600 μέτρων, ενημέρωση σε 0
+                    else if (cursor.getInt(cursor.getColumnIndexOrThrow(MyContentProvider.INSIDE)) == 2) {
+                        updateLocationStatus(cursor, selection1, selectionArgs1, 0);
                     }
                 }
             } finally {
@@ -129,24 +145,6 @@ public class ProviderService {
             }
         }
         return ret;
-    }
-
-    // Μέθοδος για να ελέγξει αν μια τοποθεσία βρίσκεται εντός της καθορισμένης ακτίνας από ένα συγκεκριμένο σημείο
-    private boolean isPointWithinRadius(Cursor cursor, double currentLatitude, double currentLongitude ,int rad) {
-        double pointLatitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MyContentProvider.LATITUDE));
-        double pointLongitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MyContentProvider.LONGITUDE));
-        int radius = rad; // Ακτίνα σε μέτρα
-
-        double distance = calculateDistance(currentLatitude, currentLongitude, pointLatitude, pointLongitude);
-
-        if (distance <= radius) {
-            notifyLocationWithinRadius(pointLatitude, pointLongitude);
-            String selection1 = MyContentProvider.ID + " = ?";
-            String[] selectionArgs1 = {String.valueOf(cursor.getLong(cursor.getColumnIndexOrThrow(MyContentProvider.ID)))};
-            updateLocationStatus(cursor, selection1, selectionArgs1);
-            return true;
-        }
-        return false;
     }
 
     // Μέθοδος για να εμφανίσει ένα μήνυμα όταν η τοποθεσία είναι εντός της ακτίνας
@@ -170,6 +168,33 @@ public class ProviderService {
             Toast.makeText(c, "Failed to add location", Toast.LENGTH_SHORT).show();
         }
     }
+    public void addInformationLocationToProvider(long la,long lo,int rad,int ins,int ses,Context c){
+        ContentValues values = new ContentValues();
+        values.put(MyContentProvider.LATITUDE, la);
+        values.put(MyContentProvider.LONGITUDE, lo);
+        values.put(MyContentProvider.RADIUS, rad); // Ακτίνα 100 μέτρα
+        values.put(MyContentProvider.INSIDE, ins);
+        values.put(MyContentProvider.SESSION, ses);
+        Uri uri = resolver.insert(MyContentProvider.CONTENT_URI, values);
+
+        if (uri != null) {
+            Toast.makeText(c, "Location added at: " +la+ ", " + lo, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(c, "Failed to add location", Toast.LENGTH_SHORT).show();
+        }
+    }
+    public int updateCircleRadius(long id, int newRadius) {
+        ContentValues values = new ContentValues();
+        values.put("radius", newRadius);  // Υποθέτουμε ότι η στήλη της ακτίνας ονομάζεται "radius"
+
+        // Επιλέγουμε τον κύκλο με το συγκεκριμένο ID
+        String selection = "id = ?";
+        String[] selectionArgs = new String[]{String.valueOf(id)};
+
+        // Ενημέρωση της βάσης δεδομένων
+        return resolver.update(CONTENT_URI, values, selection, selectionArgs);
+    }
+
 
     // Μέθοδος για αποθήκευση περιοχών στη βάση δεδομένων μέσω του ContentProvider
     public void saveRegionsToDatabase(GeoPoint center) {
