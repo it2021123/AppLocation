@@ -15,9 +15,7 @@ public class GPSBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // Έλεγχος αν το intent έχει την κατάλληλη δράση "com.example.myapplication.LOCATION_UPDATE"
         if (intent.getAction() != null && intent.getAction().equals("com.example.myapplication.LOCATION_UPDATE")) {
-            // Απόκτηση των δεδομένων τοποθεσίας από το intent
-            double latitude = intent.getDoubleExtra("latitude", 0.0);
-            double longitude = intent.getDoubleExtra("longitude", 0.0);
+
 
             // Έλεγχος της κατάστασης του GPS
             if (isGpsEnabled(context)) {

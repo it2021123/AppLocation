@@ -58,10 +58,10 @@ public class MainActivity extends AppCompatActivity {
         locationServiceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked && LocationService.service_on) {
+                if (isChecked ) {
                     // Αν είναι ενεργοποιημένο το Switch και η υπηρεσία είναι ενεργή
                     startService(new Intent(MainActivity.this, LocationService.class)); // Εκκίνηση της υπηρεσίας τοποθεσίας
-                    LocationService.service_on = false; // Ορισμός της κατάστασης της υπηρεσίας σε μη ενεργή
+                    LocationService.service_on= false; // Ορισμός της κατάστασης της υπηρεσίας σε μη ενεργή
                     Toast.makeText(MainActivity.this, "Location service is now activated", Toast.LENGTH_SHORT).show();
                 } else {
                     // Αν το Switch απενεργοποιηθεί
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 // Έλεγχος αν η υπηρεσία τοποθεσίας είναι ενεργή και τερματισμός της αν είναι
                 if (LocationService.service_on) {
                     stopService(new Intent(MainActivity.this, LocationService.class));
-                    LocationService.service_on = false;
+                    LocationService.service_on=false;
                 }
                 // Τερματισμός της εφαρμογής
                 finishAffinity();

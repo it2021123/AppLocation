@@ -4,18 +4,14 @@ package com.example.myapplication;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,17 +25,14 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ResultsMapActivity extends AppCompatActivity {
     private Marker marker;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 123;
 
     private MyContentProvider contentProvider;
+    private ContentProviderService contentProviderService;
     private MapView mapView;
     private double latitude;
     private double longitude;
@@ -50,7 +43,7 @@ public class ResultsMapActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results_map);
-
+        contentProviderService = new ContentProviderService(getContentResolver(), this);
         // Αρχικοποίηση της βιβλιοθήκης osmdroid
         Configuration.getInstance().load(getApplicationContext(), getPreferences(MODE_PRIVATE));
 
@@ -58,7 +51,14 @@ public class ResultsMapActivity extends AppCompatActivity {
 
         // Εύρεση και αρχικοποίηση του MapView
         mapView = findViewById(R.id.map2);
-        mapView.setTileSource(TileSourceFactory.MAPNIK); // Ορισμός του χάρτη στη μορφή Mapnik
+        if (mapView != null) {
+            // Συνέχισε με την αρχικοποίηση του MapView
+            mapView.setTileSource(TileSourceFactory.MAPNIK);
+            // Άλλες ρυθμίσεις
+        } else {
+            Toast.makeText(ResultsMapActivity.this,"Something get wrong when map was refreshing",Toast.LENGTH_LONG).show();
+        }
+
         marker = new Marker(mapView);  // Δημιουργία ενός marker για τον χάρτη
         mph = new MapHelper(mapView, this);  // Δημιουργία του βοηθού χάρτη
 
@@ -71,29 +71,35 @@ public class ResultsMapActivity extends AppCompatActivity {
         // Προσθήκη επικάλυψης για την εμφάνιση της τρέχουσας τοποθεσίας
         MyLocationNewOverlay myLocationOverlay = new MyLocationNewOverlay(mapView);
         mapView.getOverlays().add(myLocationOverlay);
-
+        TextView locationInfoTextView = findViewById(R.id.locationInfoTextView);
+        locationInfoTextView.setMovementMethod(new ScrollingMovementMethod());
         // Έλεγχος αν η άδεια για πρόσβαση στη θέση έχει παραχωρηθεί
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             // Αν η άδεια έχει παραχωρηθεί, ζήτηση ενημερώσεων τοποθεσίας
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, new LocationListener() {
                 @Override
                 public void onLocationChanged(@NonNull Location location) {
-                    mph.clearMap();  // Καθαρισμός του χάρτη από προηγούμενες επικαλύψεις
 
-                    // Ενημέρωση της τοποθεσίας
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-                    GeoPoint updatedLocation = new GeoPoint(latitude, longitude);
+                        mph.clearMap();  // Καθαρισμός του χάρτη από προηγούμενες επικαλύψεις
 
-                    // Ρύθμιση του κέντρου του χάρτη στη νέα τοποθεσία
-                    mapController.setCenter(updatedLocation);
+                        // Ενημέρωση της τοποθεσίας
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                        GeoPoint updatedLocation = new GeoPoint(latitude, longitude);
 
-                    // Προσθήκη marker στην νέα τοποθεσία
-                    mph.addMarker(updatedLocation);
+                        // Ρύθμιση του κέντρου του χάρτη στη νέα τοποθεσία
+                        mapController.setCenter(updatedLocation);
 
-                    // Εμφάνιση των επισημειωμένων περιοχών από το Content Provider
-                    mph.showMarkedRegions(MyContentProvider.ses-1);
+                        // Προσθήκη marker στην νέα τοποθεσία
+                        mph.addMarker(updatedLocation);
+
+                        // Εμφάνιση των επισημειωμένων περιοχών από το Content Provider
+                        mph.showMarkedRegions(MyContentProvider.ses - 1);
+                    StringBuilder info =mph.getLocationsBySession(MyContentProvider.ses - 1, contentProviderService);
+                    locationInfoTextView.setText(info.toString());
+
                 }
+
             });
         } else {
             // Αν δεν έχει παραχωρηθεί η άδεια, ζήτηση της άδειας από τον χρήστη

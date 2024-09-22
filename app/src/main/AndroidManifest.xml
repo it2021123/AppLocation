@@ -24,6 +24,7 @@
         android:value="YOUR_API_KEY" />
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,10 +34,12 @@
         </activity>
         <activity
             android:name=".MapActivity"
+            android:screenOrientation="portrait"
             android:label="Map Activity">
         </activity>
         <activity
             android:name=".ResultsMapActivity"
+            android:screenOrientation="portrait"
             android:label="ResultsMapActivity">
         </activity>
         <receiver

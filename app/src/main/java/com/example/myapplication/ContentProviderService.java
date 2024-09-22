@@ -1,29 +1,24 @@
 package com.example.myapplication;
 
 import static com.example.myapplication.MyContentProvider.CONTENT_URI;
-import static com.example.myapplication.MyContentProvider.INSIDE;
 
-import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.widget.Toast;
 
-import androidx.core.content.ContextCompat;
-
 import org.osmdroid.util.GeoPoint;
 
 
-public class ProviderService {
+public class ContentProviderService {
 
     private ContentResolver resolver;
     private Context context; // Το context αποθηκεύεται για τη χρήση του σε μηνύματα Toast
 
     // Κατασκευαστής της κλάσης που δέχεται έναν ContentResolver και το Context
-    public ProviderService(ContentResolver resolver, Context context) {
+    public ContentProviderService(ContentResolver resolver, Context context) {
         this.resolver = resolver;
         this.context = context;
     }
@@ -40,38 +35,6 @@ public class ProviderService {
         resolver.update(MyContentProvider.CONTENT_URI, updateValues, selection, selectionArgs);
     }
 
-    // Μέθοδος για διαγραφή τοποθεσίας με βάση τη γεωγραφική τοποθεσία (GeoPoint)
-    /*public void deleteLocationByGeoPoint(GeoPoint point, Context c) {
-        if (point == null) {
-            Toast.makeText(c, "Error: GeoPoint is null", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        double latitude = point.getLatitude();
-        double longitude = point.getLongitude();
-
-        // Ορισμός του WHERE clause με μεγαλύτερη ακρίβεια στις συντεταγμένες
-        String whereClause = MyContentProvider.LATITUDE + " = ? AND " + MyContentProvider.LONGITUDE + " = ?";
-
-        // Στρογγυλοποίηση των συντεταγμένων στο 6ο δεκαδικό για ακρίβεια
-        String[] whereArgs = {
-                String.format(Locale.US, "%.6f", latitude),
-                String.format(Locale.US, "%.6f", longitude)
-        };
-
-        // Εκτέλεση της διαγραφής χρησιμοποιώντας το ContentResolver
-        Uri uri = MyContentProvider.CONTENT_URI;
-        int deletedRows = resolver.delete(uri, whereClause, whereArgs);
-
-        // Έλεγχος αποτελέσματος διαγραφής και εμφάνιση ανάλογου μηνύματος
-        if (deletedRows > 0) {
-            Toast.makeText(c, "Location at " + latitude + ", " + longitude + " deleted", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(c, "No location found at " + latitude + ", " + longitude, Toast.LENGTH_SHORT).show();
-        }
-    }*/
-
-
     // Μέθοδος για διαγραφή τοποθεσιών με βάση το session ID
     public void deleteLocationBySession(int session, Context c) {
         // Ορισμός του WHERE clause για το session
@@ -82,6 +45,7 @@ public class ProviderService {
         Uri uri = MyContentProvider.CONTENT_URI;
         int deletedRows = resolver.delete(uri, whereClause, whereArgs);
 
+        // Ενημέρωση του χρήστη με μήνυμα Toast για το αποτέλεσμα της διαγραφής
         if (deletedRows > 0) {
             Toast.makeText(context, "Locations for session " + session + " deleted", Toast.LENGTH_SHORT).show();
         } else {
@@ -95,11 +59,13 @@ public class ProviderService {
         String[] selectionArgs = {String.valueOf(locationId)};
         int rowsDeleted = resolver.delete(MyContentProvider.CONTENT_URI, selection, selectionArgs);
 
+        // Ενημέρωση του χρήστη αν η τοποθεσία διαγράφηκε
         if (rowsDeleted > 0) {
             Toast.makeText(c, "Deleted location with ID: " + locationId, Toast.LENGTH_SHORT).show();
         }
     }
 
+    // Μέθοδος για να ελέγξει αν μια τοποθεσία είναι εντός της ακτίνας
     public boolean isLocationWithinRadius(double currentLatitude, double currentLongitude, int sess) {
         boolean ret = false;
         String[] projection = {
@@ -110,11 +76,13 @@ public class ProviderService {
                 MyContentProvider.INSIDE
         };
 
+        // Επιλογή τοποθεσιών που είναι εκτός της ακτίνας
         String selection = MyContentProvider.INSIDE + " IN (?, ?) AND " + MyContentProvider.SESSION + " = ?";
         String[] selectionArgs = {"0", "2", String.valueOf(sess)};
 
         Cursor cursor = queryLocationsOutsideRadius(projection, selection, selectionArgs);
 
+        // Ελέγχει τις τοποθεσίες και ενημερώνει την κατάστασή τους ανάλογα με την απόσταση
         if (cursor != null) {
             try {
                 while (cursor.moveToNext()) {
@@ -162,12 +130,114 @@ public class ProviderService {
         values.put(MyContentProvider.SESSION, MyContentProvider.ses);
         Uri uri = resolver.insert(MyContentProvider.CONTENT_URI, values);
 
+        // Ενημέρωση με Toast αν η τοποθεσία προστέθηκε επιτυχώς
         if (uri != null) {
             Toast.makeText(c, "Location added at: " + point.getLatitude() + ", " + point.getLongitude(), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(c, "Failed to add location", Toast.LENGTH_SHORT).show();
         }
     }
+
+    // Μέθοδος για λήψη πληροφοριών τοποθεσίας με βάση το session
+    public StringBuilder getLocationInfoBySession(int sessionId) {
+        StringBuilder infoBuilder = new StringBuilder();
+        Cursor cursor = queryLocationsBySession(sessionId);
+
+        // Προσθήκη πληροφοριών τοποθεσίας στο StringBuilder
+        if (cursor != null) {
+            try {
+                while (cursor.moveToNext()) {
+                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(MyContentProvider.ID));
+                    double latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MyContentProvider.LATITUDE));
+                    double longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MyContentProvider.LONGITUDE));
+                    int radius = cursor.getInt(cursor.getColumnIndexOrThrow(MyContentProvider.RADIUS));
+                    int inside = cursor.getInt(cursor.getColumnIndexOrThrow(MyContentProvider.INSIDE));
+
+                    infoBuilder.append("\n").append("ID: ").append(id)
+                            .append("| Lat: ").append(latitude)
+                            .append("| Lon: ").append(longitude)
+                            .append("| Radius: ").append(radius)
+                            .append("| Inside: ").append(intToString(inside))
+                            .append("\n");
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+
+        return infoBuilder;
+    }
+
+    // Μέθοδος που μετατρέπει το INSIDE σε κατανοητή μορφή
+    private String intToString(int i) {
+        if (i == 1) {
+            return "Green pass";
+        } else if (i == 2) {
+            return "Yellow Near";
+        } else {
+            return "Red not pass";
+        }
+    }
+
+    // Μέθοδος για υπολογισμό της απόστασης μεταξύ δύο σημείων σε μέτρα
+    public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6371000; // Ακτίνα της Γης σε μέτρα
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Επιστροφή της απόστασης σε μέτρα
+    }
+
+
+    // Αναζήτηση τοποθεσιών με βάση το session ID
+    public Cursor queryLocationsBySession(int sessionId) {
+        String[] projection = {
+                MyContentProvider.ID,
+                MyContentProvider.LATITUDE,
+                MyContentProvider.LONGITUDE,
+                MyContentProvider.RADIUS,
+                MyContentProvider.INSIDE
+        };
+        String selection = MyContentProvider.SESSION + " = ?";
+        String[] selectionArgs = {String.valueOf(sessionId)};
+
+        return resolver.query(MyContentProvider.CONTENT_URI, projection, selection, selectionArgs, null);
+    }
+
+
+    // Μέθοδος για διαγραφή τοποθεσίας με βάση τη γεωγραφική τοποθεσία (GeoPoint)
+    /*public void deleteLocationByGeoPoint(GeoPoint point, Context c) {
+        if (point == null) {
+            Toast.makeText(c, "Error: GeoPoint is null", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double latitude = point.getLatitude();
+        double longitude = point.getLongitude();
+
+        // Ορισμός του WHERE clause με μεγαλύτερη ακρίβεια στις συντεταγμένες
+        String whereClause = MyContentProvider.LATITUDE + " = ? AND " + MyContentProvider.LONGITUDE + " = ?";
+
+        // Στρογγυλοποίηση των συντεταγμένων στο 6ο δεκαδικό για ακρίβεια
+        String[] whereArgs = {
+                String.format(Locale.US, "%.6f", latitude),
+                String.format(Locale.US, "%.6f", longitude)
+        };
+
+        // Εκτέλεση της διαγραφής χρησιμοποιώντας το ContentResolver
+        Uri uri = MyContentProvider.CONTENT_URI;
+        int deletedRows = resolver.delete(uri, whereClause, whereArgs);
+
+        // Έλεγχος αποτελέσματος διαγραφής και εμφάνιση ανάλογου μηνύματος
+        if (deletedRows > 0) {
+            Toast.makeText(c, "Location at " + latitude + ", " + longitude + " deleted", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(c, "No location found at " + latitude + ", " + longitude, Toast.LENGTH_SHORT).show();
+        }
+    }*/
     public void addInformationLocationToProvider(long la,long lo,int rad,int ins,int ses,Context c){
         ContentValues values = new ContentValues();
         values.put(MyContentProvider.LATITUDE, la);
@@ -194,35 +264,30 @@ public class ProviderService {
         // Ενημέρωση της βάσης δεδομένων
         return resolver.update(CONTENT_URI, values, selection, selectionArgs);
     }
+    public Cursor getRandomLocations(int limit) {
+        // Επιλογή των στηλών που θέλουμε να πάρουμε
+        String[] projection = {
+                MyContentProvider.ID,
+                MyContentProvider.LATITUDE,
+                MyContentProvider.LONGITUDE,
+                MyContentProvider.RADIUS,
+                MyContentProvider.INSIDE
+        };
 
+        // Χρήση του RANDOM() για να πάρουμε τυχαία δεδομένα
+        String orderBy = "RANDOM()";
 
-    // Μέθοδος για αποθήκευση περιοχών στη βάση δεδομένων μέσω του ContentProvider
-    public void saveRegionsToDatabase(GeoPoint center) {
-        Uri uri = MyContentProvider.CONTENT_URI;
+        // Περιορίζουμε τον αριθμό των αποτελεσμάτων
+        String limitClause = String.valueOf(limit);
 
-        double latitude = center.getLatitude();
-        double longitude = center.getLongitude();
-
-        ContentValues values = new ContentValues();
-        values.put(MyContentProvider.LATITUDE, latitude);
-        values.put(MyContentProvider.LONGITUDE, longitude);
-        values.put(MyContentProvider.RADIUS, 100); // Ακτίνα 100 μέτρα
-        values.put(MyContentProvider.INSIDE, 0);
-        resolver.insert(uri, values);
-
-        // Ειδοποιήστε τις αλλαγές στους παρατηρητές
-        resolver.notifyChange(uri, null);
+        // Εκτέλεση του query
+        return resolver.query(
+                MyContentProvider.CONTENT_URI,
+                projection,
+                null,   // No WHERE clause
+                null,   // No selection arguments
+                orderBy + " LIMIT " + limitClause  // Τυχαία σειρά και περιορισμός αποτελεσμάτων
+        );
     }
 
-    // Μέθοδος για υπολογισμό της απόστασης μεταξύ δύο σημείων σε μέτρα
-    public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        double R = 6371000; // Ακτίνα της Γης σε μέτρα
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Επιστροφή της απόστασης σε μέτρα
-    }
 }

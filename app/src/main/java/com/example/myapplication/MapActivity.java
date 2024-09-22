@@ -8,12 +8,10 @@ import android.content.ContentResolver;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -33,11 +31,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MapActivity extends AppCompatActivity {
     private ContentResolver resolver; // Διαχειριστής περιεχομένου για πρόσβαση στη βάση δεδομένων
@@ -47,7 +41,7 @@ public class MapActivity extends AppCompatActivity {
     private GeoPoint circleCenter; // Μεταβλητή για το κέντρο του κύκλου
     private int circleRadius = 100; // Ακτίνα του κύκλου σε μέτρα
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 123; // Κωδικός αιτήματος για άδεια πρόσβασης τοποθεσίας
-    private ProviderService providerse; // Υπηρεσία για την επικοινωνία με τη βάση δεδομένων
+    private ContentProviderService providerse; // Υπηρεσία για την επικοινωνία με τη βάση δεδομένων
     public double latitude; // Τρέχουσα γεωγραφική θέση (γεωγραφικό πλάτος)
     public double longitude; // Τρέχουσα γεωγραφική θέση (γεωγραφικό μήκος)
 
@@ -70,7 +64,7 @@ public class MapActivity extends AppCompatActivity {
         resolver = getContentResolver();
 
         // Αρχικοποίηση του ProviderService με τον ContentResolver και το Context
-        providerse = new ProviderService(resolver, this);
+        providerse = new ContentProviderService(resolver, this);
 
         // Ρύθμιση του mapView
         mapView = findViewById(R.id.map);
@@ -92,13 +86,15 @@ public class MapActivity extends AppCompatActivity {
                 @Override
                 public void onLocationChanged(@NonNull Location location) {
                     // Ενημέρωση τοποθεσίας
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-                    GeoPoint updatedLocation = new GeoPoint(latitude, longitude);
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                        GeoPoint updatedLocation = new GeoPoint(latitude, longitude);
 
-                    // Ρύθμιση του κέντρου του χάρτη στην νέα τοποθεσία
-                    mapController.setCenter(new GeoPoint(latitude, longitude));
-                    hmap.addMarker(new GeoPoint(latitude, longitude)); // Προσθήκη marker στη νέα τοποθεσία
+                        // Ρύθμιση του κέντρου του χάρτη στη νέα τοποθεσία
+                        mapController.setCenter(new GeoPoint(latitude, longitude));
+                        hmap.addMarker(updatedLocation); // Προσθήκη marker στη νέα τοποθεσία
+
+
                 }
             });
         } else {
@@ -145,7 +141,6 @@ public class MapActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (circleCenter != null) {
-                    providerse.saveRegionsToDatabase(circleCenter); // Αποθήκευση της τρέχουσας περιοχής στη βάση δεδομένων
                     Intent intent = new Intent(MapActivity.this, MainActivity.class); // Μετάβαση στην κύρια δραστηριότητα
                     startService(new Intent(MapActivity.this, LocationService.class)); // Εκκίνηση της υπηρεσίας τοποθεσίας
                     startActivity(intent);

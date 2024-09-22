@@ -18,6 +18,19 @@
             android:layout_height="match_parent" />
     </FrameLayout>
 
+    <!-- Πίνακας πληροφοριών τοποθεσίας με σταθερό ύψος -->
+    <TextView
+        android:id="@+id/locationInfoTextView"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+    android:layout_alignParentTop="true"
+    android:background="#4D0000FF"
+    android:padding="16dp"
+    android:textColor="#FFFFFF"
+    android:textStyle="bold"
+    android:scrollbars="vertical"
+    android:visibility="visible" />
+
     <!-- Κουμπιά στο κάτω μέρος της οθόνης -->
     <LinearLayout
         android:id="@+id/buttonsLayout"
@@ -42,7 +55,7 @@
             android:text="Return to Main Screen"
             android:textColor="#020B3E"
             android:textStyle="bold"
-             />
+            />
 
         <Button
             android:id="@+id/pauseResumeButton"
@@ -54,7 +67,6 @@
             android:text="Pause/Resume Service"
             android:textColor="#6E0407"
             android:textStyle="bold"
-             />
+            />
     </LinearLayout>
 </RelativeLayout>
-

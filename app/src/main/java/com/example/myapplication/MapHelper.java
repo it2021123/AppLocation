@@ -1,7 +1,5 @@
 package com.example.myapplication;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.graphics.Color;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
@@ -9,42 +7,13 @@ import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.net.Uri;
-import android.text.TextUtils;
-import android.widget.Toast;
 
-import org.osmdroid.api.IMapController;
-import org.osmdroid.config.Configuration;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polygon;
-import org.osmdroid.views.overlay.Polyline;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Color;
 import android.util.Log;
-
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polygon;
-import org.osmdroid.views.overlay.Polyline;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class MapHelper {
 
@@ -55,7 +24,7 @@ public class MapHelper {
     private Marker lastMarker; // Δήλωση μεταβλητής για τον τελευταίο marker που προστέθηκε
 
     private LinkedList<Long> idCircles;
-   // private long counter=1;
+    // private long counter=1;
     // Κατασκευαστής της κλάσης MapHelper
     public MapHelper(MapView mapView, Context context) {
         this.mapView = mapView;
@@ -67,8 +36,11 @@ public class MapHelper {
 
     // Προσθήκη marker στο χάρτη
     public void addMarker(GeoPoint position) {
-        if (mapView == null) return; // Έλεγχος αν το mapView είναι null
-
+        // Έλεγχος αν το mapView είναι null
+        if (mapView == null) {
+            Log.e("MapHelper", "MapView is null. Cannot add marker.");
+            return;
+        }
         // Αφαίρεση του προηγούμενου marker αν υπάρχει
         if (lastMarker != null) {
             mapView.getOverlays().remove(lastMarker);
@@ -94,7 +66,7 @@ public class MapHelper {
 
     // Αφαίρεση του πλησιέστερου κύκλου από τη δεδομένη θέση
     // Αφαίρεση του πλησιέστερου κύκλου από τη δεδομένη θέση
-    public GeoPoint removeNearestCircle(GeoPoint point, ProviderService providerse) {
+    public GeoPoint removeNearestCircle(GeoPoint point, ContentProviderService providerse) {
         if (mapView == null || circles == null || circles.isEmpty() || point == null) {
             Log.e("MapHelper", "MapView, circles list, or point is null, or circles list is empty");
             return null;
@@ -214,5 +186,42 @@ public class MapHelper {
         mapView.getOverlayManager().clear();
         circles.clear(); // Επαναφορά της λίστας των κύκλων
         mapView.invalidate(); // Ενημέρωση της προβολής του χάρτη
+    }
+    public StringBuilder getLocationsBySession(int i, ContentProviderService providerse) {
+        return providerse.getLocationInfoBySession(i);
+    }
+
+    public void addMarkerWithLabel(GeoPoint position, String label) {
+        if (mapView == null) return;
+
+        Marker marker = new Marker(mapView);
+        marker.setPosition(position);
+        marker.setTitle(label);
+        mapView.getOverlays().add(marker);
+        mapView.invalidate();
+    }
+
+    //Συνάρτηση Προσθήκης Τυχαίων Κύκλων στον Χάρτη
+    public void addRandomCircles(int numberOfLocations, ContentProviderService providerse) {
+        // Παίρνουμε τυχαίες τοποθεσίες από τη βάση δεδομένων
+        Cursor cursor = providerse.getRandomLocations(numberOfLocations);
+
+        if (cursor != null) {
+            // Διατρέχουμε τις εγγραφές και προσθέτουμε κύκλους
+            while (cursor.moveToNext()) {
+                // Λήψη συντεταγμένων από τον Cursor
+                double latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MyContentProvider.LATITUDE));
+                double longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MyContentProvider.LONGITUDE));
+
+                // Δημιουργία ενός GeoPoint από τις συντεταγμένες
+                GeoPoint geoPoint = new GeoPoint(latitude, longitude);
+
+                // Δημιουργία και προσθήκη ενός κύκλου με τυχαία ακτίνα και χρώμα
+                addCircle(geoPoint, 100, Color.argb(75, 0, 0, 255));  // π.χ., ακτίνα 100 μέτρων και γαλάζιο χρώμα
+            }
+            cursor.close();
+        } else {
+            Log.e("MapHelper", "No random locations found.");
+        }
     }
 }
